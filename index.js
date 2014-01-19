@@ -42,3 +42,44 @@ exports.subtract = function (a, b, c) {
   }
   return c
 }
+
+exports.mul =
+exports.multiply = function (a, b, c) {
+  var l = Math.max(a.length, b.length)
+  if(!c) c = new Buffer(l)
+  c.fill()
+  //for each place in A, multiply each place in B,
+  //and add it to the running total.
+  for(var i = 0; i < b.length; i++) {
+    for(var j = 0; j < a.length; j++) {
+      var value = b[i] * a[j]
+      var current = (c[i + j]||0) + ((c[i + j + 1]<<8) || 0)
+      var v = current + value
+      c[i + j]     = v & 0xff
+      c[1 + i + j] = v >> 8
+    }
+  }
+  return c
+}
+
+function readInt(b, n) {
+  return b[n] | (b[n + 1]||0)<<8 | (b[n + 2]||0)<<16 | (b[n + 2]||0)<<24
+}
+
+
+// a % n (where n is < 2^31)
+exports.modInt = function (a, n, c) {
+  var l = a.length
+  if(!c) c = new Buffer(l)
+  a.copy(c)
+  l = l - 4
+  do {
+    
+//    var v = readInt(c, l) % n
+    console.log(l)
+    var v
+    c.writeInt32LE(v = c.readInt32LE(l) % n, l)
+    console.log(v, v.toString(16))
+  } while(l--)
+  return c
+}
