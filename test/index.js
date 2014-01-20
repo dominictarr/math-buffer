@@ -125,18 +125,53 @@ tape('compare', function (t) {
   t.end()
 })
 
-tape('shift', function (t) {
+tape('shift 1', function (t) {
   equal(t, big.shift(B(0, 1), 1), B(0, 2))
   equal(t, big.shift(B(0, 1), 2), B(0, 4))
   equal(t, big.shift(B(0, 1), 3), B(0, 8))
   equal(t, big.shift(B(1, 0), 3), B(8, 0))
   equal(t, big.shift(B(0x80, 0), 1), B(0, 1))
-
+  t.end()
+})
+tape('shift 2, reverse', function (t) {
   equal(t, big.shift(B(0, 2), -1), B(0, 1))
   equal(t, big.shift(B(0, 4), -2), B(0, 1))
   equal(t, big.shift(B(0, 8), -3), B(0, 1))
   equal(t, big.shift(B(8, 0), -3), B(1, 0))
   equal(t, big.shift(B(0, 1), -1), B(0x80, 0))
+  t.end()
+})
+
+tape('shift2', function (t) {
+  equal(t, big.shift(B(0, 1, 0),  9), B(0, 0, 2))
+  equal(t, big.shift(B(0, 1, 0), 10), B(0, 0, 4))
+  equal(t, big.shift(B(0, 1, 0), 11), B(0, 0, 8))
+  equal(t, big.shift(B(1, 0, 0), 11), B(0, 8, 0))
+  equal(t, big.shift(B(0x80, 0, 0),  9), B(0, 0, 1))
+
+  equal(t, big.shift(B(0, 0, 2), -17), B(1, 0, 0))
+  equal(t, big.shift(B(0, 0, 4), -17), B(2, 0, 0))
+  equal(t, big.shift(B(0, 0, 8), -17), B(4, 0, 0))
+  equal(t, big.shift(B(0, 8, 0), -11), B(1, 0, 0))
+  equal(t, big.shift(B(0, 0, 1), -9), B(0x80, 0, 0))
+  t.end()
+})
+
+
+//it ought to be possible to do shift on the same buffer!
+
+tape('shift - mutate', function (t) {
+  function shift(a, b, n) {
+    var _a = new Buffer(a), _b = new Buffer(b)
+    big.shift(_a, n, _a)
+    console.log(_a, b)
+    equal(t, _a, b)
+    big.shift(_a, -1*n, _a)
+    console.log(_a, a)
+    equal(t, _a, a)
+  }
+  shift(B(1), B(2), 1)
+  shift(B(0x07, 0x00), B(0, 0x1c), 10)
   t.end()
 })
 
@@ -148,5 +183,18 @@ tape('most significant bit', function (t) {
   t.equal(big.mostSignificantBit(B(0, 0, 0x80)), 24)
   t.equal(big.mostSignificantBit(B(0, 0, 0, 0x80)), 32)
   t.equal(big.mostSignificantBit(B(0, 0, 1)), 17)
+  t.end()
+})
+
+
+tape('divide', function (t) {
+  var q = new Buffer(10), r = new Buffer(10)
+//  big.divide(B(0, 1, 22, 3, 4, 5), B(1, 53, 233, 234, 10), q, r)
+//  var r = .r
+  equal(t, big.divide(B(0x80), B(8)).remainder, B(0))
+  equal(t, big.divide(B(0x80), B(7)).remainder, B(2))
+  equal(t, big.divide(B(0, 0x80), B(7, 0)).remainder, B(1, 0))
+  equal(t, big.divide(B(0x34, 0x12), B(0, 7)).remainder, B(0x34, 4))
+  equal(t, big.divide(B(0x34, 0x12), B(7, 0)).remainder, B(5, 0))
   t.end()
 })
