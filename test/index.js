@@ -139,3 +139,14 @@ tape('shift', function (t) {
   equal(t, big.shift(B(0, 1), -1), B(0x80, 0))
   t.end()
 })
+
+tape('most significant bit', function (t) {
+  t.equal(big.mostSignificantBit(B(1, 2, 3)), 18)
+  t.equal(big.mostSignificantBit(B(1, 3)), 10)
+  t.equal(big.mostSignificantBit(B(0x80)), 8)
+  t.equal(big.mostSignificantBit(B(0, 0x80)), 16)
+  t.equal(big.mostSignificantBit(B(0, 0, 0x80)), 24)
+  t.equal(big.mostSignificantBit(B(0, 0, 0, 0x80)), 32)
+  t.equal(big.mostSignificantBit(B(0, 0, 1)), 17)
+  t.end()
+})
