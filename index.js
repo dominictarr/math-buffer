@@ -43,6 +43,8 @@ exports.multiply = function (a, b, c) {
   var l = Math.max(a.length, b.length)
   if(!c) c = new Buffer(l)
   c.fill()
+  if(c === a || c === b) throw new Error('multiply cannot mutate')
+
   //for each place in A, multiply each place in B,
   //and add it to the running total.
   for(var i = 0; i < b.length; i++) {
@@ -57,10 +59,6 @@ exports.multiply = function (a, b, c) {
   return c
 }
 
-function readInt(b, n) {
-  return b[n] | (b[n + 1]||0)<<8 | (b[n + 2]||0)<<16 | (b[n + 2]||0)<<24
-}
-
 // a % n (where n is < 2^31)
 // this uses Buffer#readInt32LE
 // so, buffers length must be multiple of 4.
@@ -68,11 +66,18 @@ exports.modInt = function (a, n, c) {
   var l = a.length
   if(!c) c = new Buffer(l)
   a.copy(c)
-  l = l - 4
-  do {
-    c.writeInt32LE(c.readInt32LE(l) % n, l)
-  } while(l--)
-  return c
+//  l = l - 4
+//  do {
+//    var n = c[l]
+//    c.writeInt32LE(c.readInt32LE(l) % n, l)
+//  } while(l--)
+
+  var w = 0
+  while(l--) {
+    w = (w << 8 | c[l]) % n
+  }
+
+  return w
 }
 
 //return -1, 0, or 1 if a < b, a == b, a > b
