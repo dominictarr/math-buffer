@@ -123,4 +123,19 @@ tape('compare', function (t) {
   t.equal(big.compare(c, c), 0)
   t.equal(big.compare(d, d), 0)
   t.end()
-}) 
+})
+
+tape('shift', function (t) {
+  equal(t, big.shift(B(0, 1), 1), B(0, 2))
+  equal(t, big.shift(B(0, 1), 2), B(0, 4))
+  equal(t, big.shift(B(0, 1), 3), B(0, 8))
+  equal(t, big.shift(B(1, 0), 3), B(8, 0))
+  equal(t, big.shift(B(0x80, 0), 1), B(0, 1))
+
+  equal(t, big.shift(B(0, 2), -1), B(0, 1))
+  equal(t, big.shift(B(0, 4), -2), B(0, 1))
+  equal(t, big.shift(B(0, 8), -3), B(0, 1))
+  equal(t, big.shift(B(8, 0), -3), B(1, 0))
+  equal(t, big.shift(B(0, 1), -1), B(0x80, 0))
+  t.end()
+})
