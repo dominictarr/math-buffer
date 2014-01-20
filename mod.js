@@ -25,7 +25,7 @@ function mod(A, B) {
   return A
 }
 
-console.log(mod(13227, 28), 13227 % 28, ~~(13227 / 28))
+//console.log(mod(13227, 28), 13227 % 28, ~~(13227 / 28))
 
 //find the most significant bit in a byte with a ternary based binary search...
 function msb (x) {
@@ -41,3 +41,5 @@ function msb (x) {
 //  console.log(msb(l), l.toString(2), l.toString(2).length)
 //}
 //
+
+module.exports = mod
