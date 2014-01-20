@@ -47,9 +47,8 @@ exports.subtract = function (a, b, c) {
   return c
 }
 
-//mulitply, 
-//multiplying each pair of places
-//and accumulate results in a new buffer.
+//mulitply.
+//multiply each pair of places and accumulate results in a new buffer.
 exports.mul =
 exports.multiply = function (a, b, c) {
   var l = Math.max(a.length, b.length)
@@ -121,4 +120,24 @@ exports.shift = function (a, n, c) {
     c[a.length] = carry
   }
   return c
+}
+
+function msb (x) {
+  return (
+    x & 0xF0
+    ? x & 0xC0 ? x & 0x80 ? 8 : 7 : x & 0x20 ? 6 : 5
+    : x & 0x0C ? x & 0x08 ? 4 : 3 : x & 0x02 ? 2 : x
+  )
+}
+
+exports.msb =
+exports.mostSignificantBit = function (a) {
+  var l = a.length
+  while(l--)
+    if(a[l]) return ((l)*8)+msb(a[l])
+  return 0
+}
+
+exports.divide = function (a, b, q, r) {
+
 }
