@@ -5,8 +5,13 @@ function B () {
   return new Buffer([].slice.call(arguments))
 }
 
+function clone (a) {
+  return JSON.parse(JSON.stringify(a))
+}
+
 function equal(t, a, b, message) {
-  t.deepEqual(a.toJSON(), b.toJSON(), message)
+  //clone to turn Buffers into arrays which makes deepEquals work better.
+  t.deepEqual(clone(a), clone(b), message)
 }
 
 function createTest(t, forward, reverse, mutate) {
@@ -107,29 +112,32 @@ tape('multiply - carry', function (t) {
 })
 
 tape('multiply - carry2', function (t) {
-  var a = new Buffer([0x00, 0x10])
-  var b = new Buffer([0x00, 0x10])
+  var a = new Buffer([0x00, 0x10, 0x00, 0x00])
+  var b = new Buffer([0x00, 0x10, 0x00, 0x00])
   var c = new Buffer([0x00, 0x00, 0x00, 0x01])
-  equal(t, big.mul(a, b, new Buffer(4)), c)
+  var m = new Buffer(4); m.fill()
+  equal(t, big.mul(a, b, m), c)
   t.end()
 })
 
 tape('multiply - carry3', function (t) {
-  var a = new Buffer([0x10, 0x10])
-  var b = new Buffer([0x10, 0x10])
+  var a = new Buffer([0x10, 0x10, 0, 0])
+  var b = new Buffer([0x10, 0x10, 0, 0])
   var c = new Buffer([0x00, 0x01, 0x02, 0x01])
-  equal(t, big.mul(a, b, new Buffer(4)), c)
+  var m = new Buffer(4); m.fill()
+  equal(t, big.mul(a, b, m), c)
   t.end()
 })
+
 
 tape('multiply - carry3', function (t) {
-  var a = new Buffer([0x12, 0x34])
-  var b = new Buffer([0x56, 0x78])
+  var a = new Buffer([0x12, 0x34, 0, 0])
+  var b = new Buffer([0x56, 0x78, 0, 0])
   var c = new Buffer([0x0c, 0xee, 0x79, 0x18])
-  equal(t, big.mul(a, b, new Buffer(4)), c)
+  var m = new Buffer(4); m.fill()
+  equal(t, big.mul(a, b, m), c)
   t.end()
 })
-
 
 tape('modInt', function (t) {
   var a = new Buffer([0, 0, 0x12, 0x34])
@@ -236,10 +244,23 @@ tape('divide', function (t) {
   var q = new Buffer(10), r = new Buffer(10)
 //  big.divide(B(0, 1, 22, 3, 4, 5), B(1, 53, 233, 234, 10), q, r)
 //  var r = .r
-  equal(t, big.divide(B(0x80), B(8)).remainder, B(0))
-  equal(t, big.divide(B(0x80), B(7)).remainder, B(2))
-  equal(t, big.divide(B(0, 0x80), B(7, 0)).remainder, B(1, 0))
-  equal(t, big.divide(B(0x34, 0x12), B(0, 7)).remainder, B(0x34, 4))
-  equal(t, big.divide(B(0x34, 0x12), B(7, 0)).remainder, B(5, 0))
+  equal(t, big.divide(B(0x80), B(8)), {remainder: B(0), quotient: B(0x10)})
+  equal(t, big.divide(B(0x80), B(7)), {remainder: B(2), quotient: B(0x12)})
+  equal(t, big.divide(B(0, 0x80), B(7, 0)), {remainder: B(1, 0), quotient: B(0x49, 0x12)})
+
+  equal(t, big.divide(B(0x34, 0x12), B(0, 7)), {remainder: B(0x34, 4), quotient: B(0x02, 0)})
+  equal(t, big.divide(B(0x34, 0x12), B(7, 0)), {remainder: B(5, 0), quotient: B(0x99, 0x02)})
+  t.end()
+})
+
+tape('square', function (t) {
+  return t.end()
+  equal(t, big.square(B(1)),          B(1))
+  equal(t, big.square(B(2)),          B(4))
+  equal(t, big.square(B(0x80, 0)),       B(0, 0x40))
+  equal(t, big.square(B(0xff, 0)), B(0x01, 0xfe))
+  equal(t, big.square(B(0xff, 0xff, 0, 0)), B(0x01, 0, 0xfe, 0xff))
+  equal(t, big.square(B(0xff, 0xff, 0xff, 0, 0, 0)), B(0x01, 0, 0, 0xfe,0xff, 0xff))
+
   t.end()
 })
