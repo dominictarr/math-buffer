@@ -5,9 +5,54 @@ function B () {
   return new Buffer([].slice.call(arguments))
 }
 
-function equal(t, a, b) {
-  t.deepEqual(a.toJSON(), b.toJSON())
+function equal(t, a, b, message) {
+  t.deepEqual(a.toJSON(), b.toJSON(), message)
 }
+
+function createTest(t, forward, reverse, mutate) {
+  return function (a, b, c) {
+    var r, r2
+
+    equal(t, r = big[forward](a, b), c,
+      r.inspect() + ' == ' + forward + '('+a.inspect()+', ' + b.inspect()+')')
+
+    if(reverse)
+      equal(t, r2 = big[reverse](r, b), a,
+        r2.inspect() + ' == ' + reverse + '('+a.inspect()+', ' + b.inspect()+')')
+
+    if(mutate) {
+      var _a = new Buffer(a)
+
+      equal(t, r = big[forward](_a, b, _a), c,
+        _a.inspect() + ' == ' + forward + '('+a.inspect()+', ' + b.inspect()+', m)')
+
+      if(reverse)
+        equal(t, big[reverse](r, b, r), a,
+          _a.inspect() + ' == ' + forward + '('+r.inspect()+', ' + b.inspect()+')')
+    }
+  }
+}
+
+tape('add/sub with mutate', function (t) {
+
+  var test = createTest(t, 'add', 'sub', true)
+
+  //simple
+  test(B(0, 1),    B(1, 0),    B(1, 1))
+
+  //carry
+  test(B(0x80, 0), B(0x80, 0), B(0, 1))
+
+  //carry
+  test(B(0x80, 0), B(0x80, 0), B(0, 1))
+
+  //two carries
+  test(B(0x80, 0xff, 0), B(0x80, 0, 0), B(0, 0, 1))
+
+  //xfffff + 0xffff == 0x1fffe
+  test(B(0xff, 0xff, 0), B(0xff, 0xff, 0), B(0xfe, 0xff, 0x01))
+  t.end()
+})
 
 tape('ADD - add two buffers', function (t) {
   var a = new Buffer([0x01, 0x02, 0x03])
