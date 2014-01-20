@@ -5,8 +5,7 @@
 
 exports.add = function (a, b, c) {
   var l = Math.max(a.length, b.length)
-  if(!c) c = new Buffer(l);
-  c.fill()
+  if(!c) { c = new Buffer(l); c.fill() }
   var carry = 0
   for(var i = 0; i < l; i++) {
     var v = (a[i] || 0) + (b[i] || 0) + carry
@@ -23,8 +22,7 @@ exports.add = function (a, b, c) {
 var subtract = exports.sub =
 exports.subtract = function (a, b, c) {
   var l = Math.max(a.length, b.length)
-  if(!c) c = new Buffer(l)
-  c.fill()
+  if(!c) { c = new Buffer(l); c.fill() }
   var carry = 0
   for(var i = 0; i < l; i++) {
     var A = (a[i] || 0), B = (b[i] || 0) + carry
