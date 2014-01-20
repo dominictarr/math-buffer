@@ -1,6 +1,10 @@
 var big = require('../')
 var tape = require('tape')
 
+function B () {
+  return new Buffer([].slice.call(arguments))
+}
+
 function equal(t, a, b) {
   t.deepEqual(a.toJSON(), b.toJSON())
 }
@@ -101,8 +105,22 @@ tape('modInt3', function (t) {
 })
 
 tape('modInt4', function (t) {
-  var a = new Buffer([0xab, 0x33, 0, 0])
+  var a = B(0xab, 0x33, 0, 0)
   equal(t, big.modInt(a, 28), new Buffer([11, 0, 0, 0]))
   t.end()
 })
- 
+
+
+tape('compare', function (t) {
+  var a = B(0, 0, 0, 0, 1), b = B(0, 0, 0, 0, 2)
+  t.equal(big.compare(a, b), -1)
+  t.equal(big.compare(b, a), 1)
+  t.equal(big.compare(a, a), 0)
+  t.equal(big.compare(b, b), 0)
+  var c = B(126, 99, 2, 0, 1, 2, 0x4a, 0xff), d = B(127, 99, 2, 0, 1, 2, 0x4a, 0xff)
+  t.equal(big.compare(c, d), -1)
+  t.equal(big.compare(d, c), 1)
+  t.equal(big.compare(c, c), 0)
+  t.equal(big.compare(d, d), 0)
+  t.end()
+}) 
