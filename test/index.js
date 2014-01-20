@@ -133,25 +133,25 @@ tape('multiply - carry3', function (t) {
 
 tape('modInt', function (t) {
   var a = new Buffer([0, 0, 0x12, 0x34])
-  equal(t, big.modInt(a, 0x13), new Buffer([0x11, 0, 0, 0]))
+  t.equal(big.modInt(a, 0x13), 0x11)
   t.end()
 })
 
 tape('modInt2', function (t) {
   var a = new Buffer([0, 0, 0, 0, 0x12, 0x34])
-  equal(t, big.modInt(a, 0x130000), new Buffer([0, 0, 0x11, 0, 0, 0]))
+  t.equal(big.modInt(a, 0x130000), 0x110000)
   t.end()
 })
 
 tape('modInt3', function (t) {
   var a = new Buffer([0x12, 0x34, 0x56, 0x78, 0x9a, 0, 0, 0])
-  equal(t, big.modInt(a, 0x123456), new Buffer([0xea, 0x47, 0x08, 0, 0, 0, 0, 0]))
+  t.equal(big.modInt(a, 0x123456), 0x0847ea)
   t.end()
 })
 
 tape('modInt4', function (t) {
   var a = B(0xab, 0x33, 0, 0)
-  equal(t, big.modInt(a, 28), new Buffer([11, 0, 0, 0]))
+  t.equal(big.modInt(a, 28), 11)
   t.end()
 })
 
