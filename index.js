@@ -2,6 +2,9 @@
 
 //add two buffers,
 //putting least significant at left will be simplest.
+//iterate over buffers from lsb to msb
+//and add each byte & 0xff, carrying overflow.
+
 exports.add = function (a, b, c) {
   var l = Math.max(a.length, b.length)
   if(!c) c = new Buffer(l);
@@ -24,6 +27,7 @@ exports.add = function (a, b, c) {
 }
 
 //there are no negatives, so make sure A is larger.
+//basically the reverse of add.
 exports.sub =
 exports.subtract = function (a, b, c) {
   var l = Math.max(a.length, b.length)
@@ -43,6 +47,9 @@ exports.subtract = function (a, b, c) {
   return c
 }
 
+//mulitply, 
+//multiplying each pair of places
+//and accumulate results in a new buffer.
 exports.mul =
 exports.multiply = function (a, b, c) {
   var l = Math.max(a.length, b.length)
@@ -66,20 +73,26 @@ function readInt(b, n) {
   return b[n] | (b[n + 1]||0)<<8 | (b[n + 2]||0)<<16 | (b[n + 2]||0)<<24
 }
 
-
 // a % n (where n is < 2^31)
+// this uses Buffer#readInt32LE
+// so, buffers length must be multiple of 4.
 exports.modInt = function (a, n, c) {
   var l = a.length
   if(!c) c = new Buffer(l)
   a.copy(c)
   l = l - 4
   do {
-    
-//    var v = readInt(c, l) % n
-    console.log(l)
-    var v
-    c.writeInt32LE(v = c.readInt32LE(l) % n, l)
-    console.log(v, v.toString(16))
+    c.writeInt32LE(c.readInt32LE(l) % n, l)
   } while(l--)
   return c
+}
+
+//return -1, 0, or 1 if a < b, a == b, a > b
+exports.compare = function (a, b) {
+  var l = Math.max(a.length, b.length)
+  while(l--) {
+    if((a[l] || 0) !== (b[l] || 0))
+      return a[l] < b[l] ? -1 : 1
+  }
+  return 0
 }
