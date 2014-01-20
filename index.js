@@ -96,3 +96,29 @@ exports.compare = function (a, b) {
   }
   return 0
 }
+
+exports.shift = function (a, n, c) {
+  //if the shift is larger than a byte, iterate.
+  if(!c) c = new Buffer(a.length)
+  if(Math.abs(n) > 8) throw new Error('not implemented yet')
+  var carry = 0
+  if(n > 0) {
+    for(var i = 0; i < a.length; i++) {
+      var v = a[i] << n
+      c[i] = v & 0xff | carry
+      carry = v >> 8
+    }
+    c[a.length] = carry
+  } else {
+    var m = -1*n
+    for(var i = a.length; i >= 0; i--) {
+      // shift into the second byte,
+      // so that we have a chance to grab the carry.
+      var v = (a[i] << 8) >> m
+      c[i] = v>>8 & 0xff | carry
+      carry = v & 0xff
+    }
+    c[a.length] = carry
+  }
+  return c
+}
