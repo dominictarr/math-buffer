@@ -1,0 +1,6 @@
+# math-buffer
+
+
+## License
+
+MIT
