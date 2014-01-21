@@ -38,29 +38,6 @@ exports.subtract = function (a, b, c) {
   return c
 }
 
-//mulitply.
-//multiply each pair of places and accumulate results in a new buffer.
-var multiply = exports.mul =
-
-exports.multiply = function (a, b, c) {
-  var l = Math.max(a.length, b.length)
-  if(!c) c = new Buffer(l)
-  c.fill()
-  if(c === a || c === b) throw new Error('multiply cannot mutate')
-
-  //for each place in A, multiply each place in B,
-  //and add it to the running total.
-  for(var i = 0; i < b.length; i++) {
-    for(var j = 0; j < a.length; j++) {
-      var value = b[i] * a[j]
-      var current = (c[i + j]||0) | ((c[i + j + 1]<<8) || 0)
-      var v = current + value
-      c[i + j]     = v & 0xff
-      c[1 + i + j] = v >>> 8
-    }
-  }
-  return c
-}
 
 // a % n (where n is < 2^31)
 // this uses Buffer#readInt32LE
@@ -114,25 +91,23 @@ var shift = exports.shift = function (a, n, c) {
 }
 
 //multiply, using shift + add
-multiply =
+var multiply =
 exports.mul =
 exports.multiply = function (a, b, m) {
   var w = new Buffer(b)
   var l = a.length * 8, prev = 0
-  if(!m) m = new Buffer(a.length)
 
+  if(!m) m = new Buffer(a.length)
   m.fill() //m must be zeros, or it will affect stuff.
 
   for(var i = 0; i < l; i++) {
-    var byte = i >> 3, bit = i % 8
-
-    //if this bit is 1
-    if(a[byte] & (1 << bit)) {
+    if(getBit(a, i)) {
       shift(w, i - prev, w)
       prev = i
-      m = add(m, w)
+      add(m, w, m)
     }
   }
+
   return m
 }
 
@@ -144,15 +119,19 @@ function _msb (x) {
   )
 }
 
-var msb =
-exports.msb =
+var mostSignificantBit
+var msb = mostSignificantBit = exports.msb =
 exports.mostSignificantBit = function (a) {
   var l = a.length
   while(l--)
     if(a[l]) return ((l)*8)+_msb(a[l])
   return 0
 }
-
+var getBit =
+exports.getBit = function (q, bit) {
+  return q[bit>>3] & 1<<(bit%8)
+}
+var divide =
 exports.divide = function (a, b, q, r) {
   if(!q) q = new Buffer(a.length)
   if(!r) r = new Buffer(a.length)
@@ -196,6 +175,30 @@ exports.divide = function (a, b, q, r) {
 // to base:
 // b.unshift(_a = (a % 10)); a = (a - _a) / 10; b
 
-exports.square = function (a, m) {
+var square = exports.square = function (a, m) {
   return multiply(a, a, m)
+}
+
+//exports.exponent
+//http://en.wikipedia.org/wiki/Modular_exponentiation#Right-to-left_binary_method
+var pow =
+exports.pow =
+exports.power = function (base, exp, mod) {
+  var result = new Buffer(exp.length)
+  result.fill()
+  result[0] = 1
+
+  var modulus = mod ? function (v) {
+    return divide(v, mod).remainder
+  } : function (id) { return id }
+
+  var msb = mostSignificantBit(exp)
+  for(var i = 0; i < msb; i++) {
+    console.log(i, getBit(exp, i), result, base)
+    if(getBit(exp, i))
+      result = modulus(multiply(result, base))
+    base = modulus(square(base))
+  }
+
+  return result
 }
