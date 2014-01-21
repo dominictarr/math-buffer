@@ -1,6 +1,6 @@
 # math-buffer
 
-use node buffers and big integers.
+use node buffers as big integers.
 
 ## byte order & base
 
