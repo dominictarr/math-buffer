@@ -264,9 +264,40 @@ tape('square', function (t) {
   t.end()
 })
 
+function testIntExp(t, base, exponent, mod) {
+  var result = Math.pow(base, exponent)
+  if(mod) result = result % mod
+
+  //only test if we didn't overflow
+  var exp = base+'^'+exponent+(mod ? '%'+mod : '')+'==='+result
+  if(result > 0xffffffff)
+    throw new Error('cant calculate with int:'+exp)
+  console.log('**********************')
+  console.log(exp)
+  var b = big.fromInt(base, 8)
+  var e = big.fromInt(exponent, 8)
+  var m = mod && big.fromInt(mod, 8)
+  var r = big.fromInt(result, 8)
+  equal(t, r, big.power(b, e, m))
+}
+
 tape('power', function (t) {
   equal(t, big.power(B(2), B(4)), B(0x10))
   equal(t, big.power(B(0x3, 0, 0, 0, 0), B(0x17, 0, 0, 0, 0)), B(0x4b, 0xe8, 0x5e, 0xeb, 0x15))
+
+  //test with some random numbers
+  testIntExp(t, 2, 27)
+  testIntExp(t, 3, 17)
+  testIntExp(t, 5, 13)
+  testIntExp(t, 5, 11)
+  testIntExp(t, 7, 7)
+
+  testIntExp(t, 2, 27, 5234)
+  testIntExp(t, 3, 27, 79234)
+  testIntExp(t, 5, 13, 3412)
+  testIntExp(t, 5, 11, 333453)
+  testIntExp(t, 7, 7, 13131)
+
   t.end()
 })
 
@@ -274,5 +305,4 @@ tape('power modulus', function (t) {
   equal(t, big.power(B(0x3, 0, 0), B(0x17, 0, 0), B(0x19)), B(2, 0, 0))
   t.end()
 })
-
 
