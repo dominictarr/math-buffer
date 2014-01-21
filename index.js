@@ -38,7 +38,6 @@ exports.subtract = function (a, b, c) {
   return c
 }
 
-
 // a % n (where n is < 2^31)
 // this uses Buffer#readInt32LE
 // so, buffers length must be multiple of 4.
@@ -194,11 +193,17 @@ exports.power = function (base, exp, mod) {
 
   var msb = mostSignificantBit(exp)
   for(var i = 0; i < msb; i++) {
-    console.log(i, getBit(exp, i), result, base)
     if(getBit(exp, i))
       result = modulus(multiply(result, base))
     base = modulus(square(base))
   }
 
   return result
+}
+
+exports.fromInt = function (int, length) {
+  var b = new Buffer(Math.max(length, 4))
+  b.fill()
+  b.writeInt32LE(int, 0)
+  return b
 }
