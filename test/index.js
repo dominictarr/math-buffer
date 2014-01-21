@@ -254,7 +254,6 @@ tape('divide', function (t) {
 })
 
 tape('square', function (t) {
-  return t.end()
   equal(t, big.square(B(1)),          B(1))
   equal(t, big.square(B(2)),          B(4))
   equal(t, big.square(B(0x80, 0)),       B(0, 0x40))
@@ -264,3 +263,16 @@ tape('square', function (t) {
 
   t.end()
 })
+
+tape('power', function (t) {
+  equal(t, big.power(B(2), B(4)), B(0x10))
+  equal(t, big.power(B(0x3, 0, 0, 0, 0), B(0x17, 0, 0, 0, 0)), B(0x4b, 0xe8, 0x5e, 0xeb, 0x15))
+  t.end()
+})
+
+tape('power modulus', function (t) {
+  equal(t, big.power(B(0x3, 0, 0), B(0x17, 0, 0), B(0x19)), B(2, 0, 0))
+  t.end()
+})
+
+
