@@ -1,18 +1,12 @@
 var big = require('../')
 var tape = require('tape')
-
+var u = require('./util')
 function B () {
   return new Buffer([].slice.call(arguments))
 }
 
-function clone (a) {
-  return JSON.parse(JSON.stringify(a))
-}
-
-function equal(t, a, b, message) {
-  //clone to turn Buffers into arrays which makes deepEquals work better.
-  t.deepEqual(clone(a), clone(b), message)
-}
+var clone = u.clone
+var equal = u.equal
 
 function createTest(t, forward, reverse, mutate) {
   return function (a, b, c) {
@@ -112,8 +106,8 @@ tape('multiply - carry', function (t) {
 })
 
 tape('multiply - carry2', function (t) {
-  var a = new Buffer([0x00, 0x10, 0x00, 0x00])
-  var b = new Buffer([0x00, 0x10, 0x00, 0x00])
+  var a = new Buffer([0x00, 0x10])
+  var b = new Buffer([0x00, 0x10])
   var c = new Buffer([0x00, 0x00, 0x00, 0x01])
   var m = new Buffer(4); m.fill()
   equal(t, big.mul(a, b, m), c)
@@ -121,8 +115,8 @@ tape('multiply - carry2', function (t) {
 })
 
 tape('multiply - carry3', function (t) {
-  var a = new Buffer([0x10, 0x10, 0, 0])
-  var b = new Buffer([0x10, 0x10, 0, 0])
+  var a = new Buffer([0x10, 0x10])
+  var b = new Buffer([0x10, 0x10])
   var c = new Buffer([0x00, 0x01, 0x02, 0x01])
   var m = new Buffer(4); m.fill()
   equal(t, big.mul(a, b, m), c)
@@ -131,8 +125,8 @@ tape('multiply - carry3', function (t) {
 
 
 tape('multiply - carry3', function (t) {
-  var a = new Buffer([0x12, 0x34, 0, 0])
-  var b = new Buffer([0x56, 0x78, 0, 0])
+  var a = new Buffer([0x12, 0x34])
+  var b = new Buffer([0x56, 0x78])
   var c = new Buffer([0x0c, 0xee, 0x79, 0x18])
   var m = new Buffer(4); m.fill()
   equal(t, big.mul(a, b, m), c)
