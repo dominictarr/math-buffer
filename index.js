@@ -3,8 +3,8 @@
 //iterate over buffers from lsb to msb
 //and add each byte & 0xff, carrying overflow.
 
-exports.fromInt = function (int, length) {
-  var b = new Buffer(Math.max(length, 4))
+var fromInt = exports.fromInt = function (int, length) {
+  var b = new Buffer(Math.max(length || 0, 4))
   b.fill()
   b.writeInt32LE(int, 0)
   return b
@@ -15,6 +15,17 @@ var isZero = exports.isZero = function (v) {
   while(l--) if(v[l]) return false
   return true
 }
+
+var isOne = exports.isOne = function (v) {
+  var l = v.length
+  while(l--) {
+    if(l === 0)   return v[0] === 1
+    else if(v[l]) return false
+  }
+  return true
+}
+
+
 
 //okay, need addShift(a, b, n)
 //a + (b<<n)
@@ -215,6 +226,7 @@ exports.power = function (base, exp, mod) {
 
 // greatest common divisor
 // http://en.wikipedia.org/wiki/Binary_GCD_algorithm
+
 exports.gcd = function (u, v, mutate) {
   if(!mutate) {
     u = new Buffer(u)
@@ -256,5 +268,61 @@ exports.gcd = function (u, v, mutate) {
      } while (!isZero(v));
   //multiply by the factors of 2 we removed at line 240
   return shift(u, shifts, u)
+}
+
+var isOdd = exports.isOdd = function (p) {
+  return !!(p[0] & 1)
+}
+
+var isEven = exports.isEven = function (p) {
+  return !(p[0] & 1)
+}
+
+exports.inverse = function (n, p) {
+  var a = fromInt(1, n.length), b = fromInt(0, n.length)
+  var x = new Buffer(n), y = new Buffer(p)
+  var tmp, i, nz=1;
+  
+  if(isEven(p))
+    throw new Error("inverse: p must be odd"+p);
+  
+  // invariant: y is odd
+  do {
+    if (isOdd(x)) {
+      if (compare(x, y) < 0) {
+        // x < y; swap everything
+        tmp = x; x = y; y = tmp;
+        tmp = a; a = b; b = tmp;
+      }
+
+      subtract(x, y, x)
+      if(compare(a, b) < 0) add(a, p, a)
+      subtract(a, b, a)
+    }
+    
+    // cut everything in half
+    shift(x, -1, x)
+    if (isOdd(a)) add(a, p, a)
+    shift(a, -1, a)
+  } while(!isZero(x))
+  
+  if (!isOne(y)) throw new Error("inverseMod: p and x must be relatively prime")
+  return b;
+}
+
+
+function _lsb (x) {
+  if(x == 0) return -1
+  return (
+    x & 0x0F
+    ? x & 0x03 ? x & 0x01 ? 0 : 1 : x & 0x04 ? 2 : 3
+    : x & 0x30 ? x & 0x10 ? 4 : 5 : x & 0x20 ? 6 : 7
+  )
+}
+
+var lowestSetBit = exports.lowestSetBit = function (n) {
+  for(var i = 0; i < n.length; i++)
+    if(n[i]) return i + _lsb(n[i])
+  return -1
 }
 
