@@ -306,3 +306,11 @@ tape('power modulus', function (t) {
   t.end()
 })
 
+tape('gcd', function (t) {
+  equal(t, big.gcd(B(45, 0), B(95, 0)), B(5, 0))
+  equal(t, big.gcd(B(46, 200), B(193, 200)), B(3, 0))
+  equal(t, big.gcd(B(0x9f, 0xf4, 0xb8, 0x57, 0x37, 0xdf, 0x02),
+                   B(0x89, 0x41, 0xe5, 0x1b, 0xda, 0x9a, 0x01)),
+           B(0x39, 0xbe, 0x23, 0, 0, 0, 0))
+  t.end()
+})
