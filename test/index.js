@@ -314,3 +314,13 @@ tape('gcd', function (t) {
            B(0x39, 0xbe, 0x23, 0, 0, 0, 0))
   t.end()
 })
+
+tape('inverse', function (t) {
+
+  equal(t, big.inverse(big.fromInt(23), big.fromInt(7)), big.fromInt(4))
+  equal(t, big.inverse(big.fromInt(23), big.fromInt(17)), big.fromInt(3)) 
+  equal(t, big.inverse(big.fromInt(235), big.fromInt(171)), big.fromInt(163)) 
+  equal(t, big.inverse(big.fromInt(235123), big.fromInt(112341347)), big.fromInt(11542649))
+  t.end()
+
+})
