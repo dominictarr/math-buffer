@@ -25,15 +25,14 @@ var isOne = exports.isOne = function (v) {
   return true
 }
 
-
-
 //okay, need addShift(a, b, n)
 //a + (b<<n)
+
 var add = exports.add = function (a, b, c) {
   var l = Math.max(a.length, b.length)
 
-  if (a.length == b.length
-  && (a[l-1] + b[l-1])>>1) l ++
+  if(a.length == b.length && (a[l-1] + b[l-1])>>1)
+    l ++
 
   if(!c) { c = new Buffer(l); c.fill() }
   var carry = 0
@@ -49,6 +48,7 @@ var add = exports.add = function (a, b, c) {
 
 //there are no negatives, so make sure A is larger.
 //basically the reverse of add.
+
 var subtract = exports.sub =
 exports.subtract = function (a, b, c) {
   var l = Math.max(a.length, b.length)
@@ -117,16 +117,19 @@ var shift = exports.shift = function (a, n, c) {
 }
 
 //multiply, using shift + add
-var multiply =
-exports.mul =
+
+var multiply = exports.mul =
 exports.multiply = function (a, b, m) {
-  var w = new Buffer(b)
-  var l = a.length * 8, prev = 0
+  var l = a.length + b.length, prev = 0
+  var w = new Buffer(l); w.fill()
 
-  if(!m) m = new Buffer(a.length)
-  m.fill() //m must be zeros, or it will affect stuff.
+  ;(Array.isArray(b) ? new Buffer(b) : b).copy(w)
 
-  for(var i = 0; i < l; i++) {
+  if(!m) m = new Buffer(l)
+  if(a !== m) m.fill() //m must be zeros, or it will affect stuff.
+
+  var bits = l<<3
+  for(var i = 0; i < bits; i++) {
     if(getBit(a, i)) {
       shift(w, i - prev, w)
       prev = i
@@ -157,15 +160,15 @@ var getBit =
 exports.getBit = function (q, bit) {
   return q[bit>>3] & 1<<(bit%8)
 }
-var divide =
-exports.divide = function (a, b, q, r) {
+
+var divide = exports.divide = exports.div = function (a, b, q, r) {
   if(!q) q = new Buffer(a.length)
   if(!r) r = new Buffer(a.length)
   q.fill(); r.fill()
   //if b is larger, then a is the remainder
   if(compare(b, a) > 1) {
     q.fill()
-    r.copy(a) //remainder is the same
+    ;(Array.isArray(r) ? new Buffer(r) : r).copy(a) //remainder is the same
     return {quotient: q, remainder: r}
   }
   var mA = msb(a), mB = msb(b)
@@ -174,7 +177,7 @@ exports.divide = function (a, b, q, r) {
   var _b2 = new Buffer(a.length)
   var _r  = new Buffer(a.length)
   _b.fill()
-  a.copy(r)
+  ;(Array.isArray(a) ? new Buffer(a) : a ).copy(r)
 
   //shift b to line up with a.
   shift(b, mA - mB, _b)
@@ -183,6 +186,7 @@ exports.divide = function (a, b, q, r) {
   // it would probably be more performant to find the
   // next most significant bit and move that far.
   // at least in sparse numbers.
+
   var bit = mA - mB
   while(bit >= 0) {
     if(compare(_b, r) <= 0) {
@@ -207,8 +211,8 @@ var square = exports.square = function (a, m) {
 
 //exports.exponent
 //http://en.wikipedia.org/wiki/Modular_exponentiation#Right-to-left_binary_method
-var pow =
-exports.pow =
+
+var pow = exports.pow =
 exports.power = function (base, exp, mod) {
   var result = new Buffer(exp.length)
   result.fill()
