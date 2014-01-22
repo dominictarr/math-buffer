@@ -66,7 +66,7 @@ generateTests('pow', 5, function (a, b) {
 })
 
 
-generateTests('gcd', 20, function (a, b) {
+generateTests('gcd', 100, function (a, b) {
   a = a.shiftRight(~~(Math.random()*a.bitLength()))
   b = Bignum.rand(a)
   var c = Bignum.rand(b)
