@@ -1,7 +1,7 @@
 {
   "name": "math-buffer",
   "description": "big integer math operations implemented on top of node buffers",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "homepage": "https://github.com/dominictarr/math-buffer",
   "repository": {
     "type": "git",
