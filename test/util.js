@@ -42,6 +42,7 @@ function wrap(a) {
     if(s.length > 70)
       lines.push(s), s = '    '
   })
+  if(/\d/.test(s)) lines.push(s)
   return '[\n' + lines.join(',\n') + '\n  ]'
   
 }
@@ -60,16 +61,19 @@ function createTestMethod(name, inputs, method, applyTest) {
       var expected = args.shift()
       var actual = method.apply(null, args)
 
-      applyTest(t, expected, actual, name, i)
+      applyTest(t, actual, expected, name, i)
       //output the test that is executing,
       //so that it's easy to c/p to more focused test.
      
-      if(DEBUG)
+      if(DEBUG) {
+        console.log('************************')
+        console.log(expected, args)
         console.log(
           'equal(t,\n  big.'+name+'('+
           args.map(wrap).join(', ')+'), '+
           wrap(expected)+'\n)'
         )
+      }
 
     })
     t.end()
