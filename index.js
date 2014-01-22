@@ -31,6 +31,10 @@ var isOne = exports.isOne = function (v) {
 //a + (b<<n)
 var add = exports.add = function (a, b, c) {
   var l = Math.max(a.length, b.length)
+
+  if (a.length == b.length
+  && (a[l-1] + b[l-1])>>1) l ++
+
   if(!c) { c = new Buffer(l); c.fill() }
   var carry = 0
   for(var i = 0; i < l; i++) {
