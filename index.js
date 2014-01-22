@@ -3,6 +3,18 @@
 //iterate over buffers from lsb to msb
 //and add each byte & 0xff, carrying overflow.
 
+exports.fromInt = function (int, length) {
+  var b = new Buffer(Math.max(length, 4))
+  b.fill()
+  b.writeInt32LE(int, 0)
+  return b
+}
+
+var isZero = exports.isZero = function (v) {
+  var l = v.length
+  while(l--) if(v[l]) return false
+  return true
+}
 
 //okay, need addShift(a, b, n)
 //a + (b<<n)
@@ -201,9 +213,48 @@ exports.power = function (base, exp, mod) {
   return result
 }
 
-exports.fromInt = function (int, length) {
-  var b = new Buffer(Math.max(length, 4))
-  b.fill()
-  b.writeInt32LE(int, 0)
-  return b
+// greatest common divisor
+// http://en.wikipedia.org/wiki/Binary_GCD_algorithm
+exports.gcd = function (u, v, mutate) {
+  if(!mutate) {
+    u = new Buffer(u)
+    v = new Buffer(v)
+  }
+  var shifts = 0;
+
+  //GCD(0,v) == v; GCD(u,0) == u, GCD(0,0) == 0
+  if (isZero(u)) return v;
+  if (isZero(v)) return u;
+
+  // if u and v are divisible by 2, then gcd must be 2*something.
+  // gcd(v, u) == gcd(v/2, u/2)*2
+  // shift out a factor of two, and we'll add it back at the end.
+  for (shifts = 0; ((u[0] | v[0]) & 1) == 0; ++shifts) {
+     shift(u, -1, u)
+     shift(v, -1, v)
+  }
+
+  //NOTE:  v & 1 == isEven
+  //      ~v & 1 == isOdd (~ flips the last 0 into 1, then ands it with 1)
+
+  //while u is even, divide by two.
+  while (~u[0] & 1)
+    shift(u, -1, u)
+
+  //From here on, u is always odd.
+  do {
+       //if v is even, 2 cannot be a divisor.
+       while (~v[0] & 1) {
+           shift(v, -1, v);
+       }
+       // Now u and v are both odd.
+       // swap so that v is larger, so that we can safely subtract v - u
+       if (compare(u, v) > 0) {
+         var t = v; v = u; u = t;
+      }
+      subtract(v, u, v)
+     } while (!isZero(v));
+  //multiply by the factors of 2 we removed at line 240
+  return shift(u, shifts, u)
 }
+
