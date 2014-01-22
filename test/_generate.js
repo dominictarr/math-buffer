@@ -12,7 +12,9 @@ var methods = {
   add: [],
   sub: [],
   mul: [],
-  div: []
+  div: [],
+  pow: [],
+  gcd: []
 }
 
 function rand () {
@@ -41,12 +43,41 @@ generateTests('add', 100)
 generateTests('sub', 100)
 generateTests('mul', 100)
 generateTests('div', 100, function (a, b) {
-  b = b.shiftRight(Math.floor(Math.random()*b.bitLength()))
+  b = b.shiftRight(Math.floor(Math.random()*b.bitLength()*100))
   return [
     {remainder: b64(Bignum.mod(a, b)), quotient: b64(Bignum.div(a, b))},
     b64(a),
     b64(b)
   ]
+})
+
+generateTests('pow', 5, function (a, b) {
+  var e  = new Bignum(~~(1 + Math.random()*7))
+  a = a.shiftRight(~~(0.95*a.bitLength()))
+  b = b.shiftRight(~~(0.95*a.bitLength()))
+  var v = [
+    b64(Bignum.powm(e, a, b)),
+    b64(e),
+    b64(a),
+    b64(b)
+  ]
+  console.error(v)
+  return v
+})
+
+
+generateTests('gcd', 20, function (a, b) {
+  a = a.shiftRight(~~(Math.random()*a.bitLength()))
+  b = Bignum.rand(a)
+  var c = Bignum.rand(b)
+  var d = a.mul(b) //if a and c are coprime, b will be gcd of d & e
+  var e = b.mul(c)
+  return [
+    b64(Bignum.gcd(d, e)),
+    b64(d),
+    b64(e)
+  ]
+
 })
 
 var method = process.argv[2]; //m[method] = methods[method]
