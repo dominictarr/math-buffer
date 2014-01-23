@@ -82,8 +82,10 @@ exports.modInt = function (a, n) {
 var compare = exports.compare = function (a, b) {
   var l = Math.max(a.length, b.length)
   while(l--) {
-    if((a[l] || 0) !== (b[l] || 0))
-      return a[l] < b[l] ? -1 : 1
+    var x = a[l] || 0
+    var y = b[l] || 0
+    if(x !== y)
+      return x < y ? -1 : 1
   }
   return 0
 }
@@ -240,6 +242,7 @@ exports.gcd = function (u, v, mutate) {
     u = new Buffer(u)
     v = new Buffer(v)
   }
+
   var shifts = 0;
 
   //GCD(0,v) == v; GCD(u,0) == u, GCD(0,0) == 0
@@ -258,22 +261,24 @@ exports.gcd = function (u, v, mutate) {
   //      ~v & 1 == isOdd (~ flips the last 0 into 1, then ands it with 1)
 
   //while u is even, divide by two.
-  while (~u[0] & 1)
+  while (isEven(u)) {
     shift(u, -1, u)
+  }
 
   //From here on, u is always odd.
   do {
-       //if v is even, 2 cannot be a divisor.
-       while (~v[0] & 1) {
-           shift(v, -1, v);
-       }
-       // Now u and v are both odd.
-       // swap so that v is larger, so that we can safely subtract v - u
-       if (compare(u, v) > 0) {
-         var t = v; v = u; u = t;
-      }
-      subtract(v, u, v)
-     } while (!isZero(v));
+   //if v is even, 2 cannot be a divisor.
+   while (isEven(v)) shift(v, -1, v)
+
+   // Now u and v are both odd.
+   // swap so that v is larger, so that we can safely subtract v - u
+    if (compare(u, v) > 0) {
+      var t = v; v = u; u = t;
+    }
+    v = subtract(v, u)
+    //v is now even, because even = odd1 - odd2
+  } while (!isZero(v))
+
   //multiply by the factors of 2 we removed at line 240
   return shift(u, shifts, u)
 }
