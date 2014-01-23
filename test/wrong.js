@@ -3,12 +3,7 @@ var tape = require('tape')
 
 //this is for bugs that I found when testing against bignum, which is a binding to openssl's bignubers.
 
-function clone (a) {
-  return JSON.parse(JSON.stringify(a))
-}
-function equal(t, a, b, message) {
-  t.deepEqual(clone(a), clone(b), message)
-}
+var equal = require('./util').equal
 
 tape('wrong', function (t) {
 

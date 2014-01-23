@@ -1,3 +1,4 @@
+if(process.title !== 'browser') return
 
 //use bignum (which wraps openssl) as a reference implementation.
 var Bignum = require('bignum')
@@ -79,8 +80,6 @@ generateTests('gcd', 100, function (a, b) {
   ]
 
 })
-
-var method = process.argv[2]; //m[method] = methods[method]
-
-console.log(JSON.stringify(methods[method], null, 2))
+  var method = process.argv[2]; //m[method] = methods[method]
+  console.log(JSON.stringify(methods[method], null, 2))
 
