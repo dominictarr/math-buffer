@@ -6,23 +6,26 @@ exports.createTestMethod = createTestMethod
 var DEBUG = process.env && process.env.DEBUG
 
 function clone (a) {
-  return JSON.parse(JSON.stringify(a))
+  var b = JSON.parse(JSON.stringify(a))
+  //handle node@11 style Buffer.toJSON
+  if(b.type == 'Buffer') return b.data
+  return b
 }
 
 function trim (a) {
-  a = clone(a)
+  a = [].slice.call(a)
+//  a = clone(a)
   if(!Array.isArray(a)) return a
   //trim 0's off end
   while(a[a.length - 1] === 0) a.pop()
   return a
 }
-
 function hydrate (obj) {
   for(var k in obj) {
     if('string' === typeof obj[k])
       obj[k] = new Buffer(obj[k], 'base64')
     if('object' === typeof obj[k])
-      obj[k] = hydrate(obj[k])
+      obj[k] = hydrate(obj[k], true)
   }
   return obj
 }
@@ -44,7 +47,6 @@ function wrap(a) {
   })
   if(/\d/.test(s)) lines.push(s)
   return '[\n' + lines.join(',\n') + '\n  ]'
-  
 }
 
 function createTestMethod(name, inputs, method, applyTest) {
