@@ -106,7 +106,7 @@ Calculate the greatest common divisor using the
 If `mutate` is true, the inputs will be mutated,
 by default, new buffers will be allocated.
 
-### gcd: `x = inverse(a, m)`
+### inverse: `x = inverse(a, m)`
 
 Calculate the [modular multiplicative inverse](http://en.wikipedia.org/wiki/Modular_multiplicative_inverse)
 This is the inverse of `a*x % m = 1`.
