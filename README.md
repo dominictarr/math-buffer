@@ -2,6 +2,9 @@
 
 use node buffers as big integers.
 
+[![testling badge](https://ci.testling.com/dominictarr/math-buffer.png)](https://ci.testling.com/dominictarr/math-buffer)
+
+
 ## byte order & base
 
 Buffers and interpreted as base 256 numbers,
