@@ -4,6 +4,7 @@ use node buffers as big integers.
 
 [![testling badge](https://ci.testling.com/dominictarr/math-buffer.png)](https://ci.testling.com/dominictarr/math-buffer)
 
+[![build status](https://secure.travis-ci.org/dominictarr/math-buffer.png)](http://travis-ci.org/dominictarr/math-buffer)
 
 ## byte order & base
 
