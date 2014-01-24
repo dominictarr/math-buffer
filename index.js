@@ -195,7 +195,6 @@ var divide = exports.divide = exports.div = function (a, b, q, r) {
   var mA = msb(a), mB = msb(b)
 
   var _b  = new Buffer(a.length)
-  var _r  = _r //new Buffer(a.length)
   _b.fill()
   ;(Array.isArray(a) ? new Buffer(a) : a ).copy(r)
 
@@ -218,7 +217,7 @@ var divide = exports.divide = exports.div = function (a, b, q, r) {
     shift(_b, -1, _b)
     bit--
   }
-  var _r = new Buffer(b.length + 8)
+  var _r = new Buffer(b.length)
   _r.fill()
   r.copy(_r)
   return {remainder: _r, quotient: q}
@@ -248,7 +247,7 @@ exports.power = function (base, exp, mod) {
   for(var i = 0; i < msb; i++) {
     if(getBit(exp, i))
       result = modulus(multiply(result, base))
-    base = modulus(square(modulus(base)))
+    base = modulus(square(base))
   }
 
   return result
