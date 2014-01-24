@@ -33,11 +33,36 @@ var add = exports.add = function (a, b, c) {
 
   if(a.length == b.length && (a[l-1] + b[l-1])>>1)
     l ++
-
+ 
   if(!c) { c = new Buffer(l); c.fill() }
   var carry = 0
   for(var i = 0; i < l; i++) {
     var v = (a[i] || 0) + (b[i] || 0) + carry
+    c[i] = v & 0xff
+    carry = v >> 8
+  }
+  if(carry)//check if last item is a carry.
+    c[l] = carry
+  return c
+}
+
+// m = a + (b << shift)
+var addShift = exports.addShift = function (a, b, shift, c) {
+ var l = Math.max(a.length, b.length)
+
+  if(a.length == b.length && (a[l-1] + b[l-1])>>1)
+    l ++
+ 
+  var sbits = shift & 7
+  var sbytes = shift >> 3
+
+  if(!c) { c = new Buffer(l); c.fill() }
+  var carry = 0, byte = 0
+  for(var i = 0; i < l; i++) {
+//    console.log( ((b[i - sbytes] || 0) << sbits).toString(2), (byte >> 8).toString(2))
+    byte = ((b[i - sbytes] || 0) << sbits) | (byte >> 8)
+//    console.log(i, sbytes, byte.toString(2))
+    var v = (a[i] || 0) + (byte&0xff) + carry
     c[i] = v & 0xff
     carry = v >> 8
   }
@@ -131,14 +156,8 @@ exports.multiply = function (a, b, m) {
   if(a !== m) m.fill() //m must be zeros, or it will affect stuff.
 
   var bits = l<<3
-  for(var i = 0; i < bits; i++) {
-    if(getBit(a, i)) {
-      shift(w, i - prev, w)
-      prev = i
-      add(m, w, m)
-    }
-  }
-
+  for(var i = 0; i < bits; i++)
+    if(getBit(a, i)) addShift(m, w, i, m)
   return m
 }
 
