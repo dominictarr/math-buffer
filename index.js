@@ -118,7 +118,7 @@ var compare = exports.compare = function (a, b) {
 var shift = exports.shift = function (a, n, c) {
   //if the shift is larger than a byte, iterate.
   //aha! just shift n%8, and then shift (n - (n%8))/8 bytes.
-
+  // (must do % and / instead of x&7 x>>3 because bits may be negative)
   var bits  = n%8
   var bytes =  (n - bits)/8
   if(!c) { c = new Buffer(a.length); c.fill() }
@@ -304,7 +304,7 @@ exports.gcd = function (u, v, mutate) {
 
 var isOdd = exports.isOdd = function (p) {
   return !!(p[0] & 1)
-}
+} 
 
 var isEven = exports.isEven = function (p) {
   return !(p[0] & 1)
