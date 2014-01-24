@@ -314,3 +314,11 @@ tape('inverse', function (t) {
   t.end()
 
 })
+
+tape('addShift', function (t) {
+  equal(t, big.addShift(big.fromInt(0), big.fromInt(1), 4), big.fromInt(1<<4))
+  equal(t, big.addShift(big.fromInt(0), big.fromInt(0xff), 4), big.fromInt(0xff0))
+  equal(t, big.addShift(big.fromInt(0), big.fromInt(0xffff), 4), big.fromInt(0xffff0))
+  equal(t, big.addShift(big.fromInt(0), big.fromInt(0xffffff), 6), big.fromInt(0x3fffffc0))
+  t.end()
+})
