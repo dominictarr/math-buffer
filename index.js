@@ -183,9 +183,9 @@ exports.getBit = function (q, bit) {
 }
 
 var divide = exports.divide = exports.div = function (a, b, q, r) {
-  if(!q) q = new Buffer(a.length)
+  if(!q && q !== false) {q = new Buffer(a.length); q.fill()}
   if(!r) r = new Buffer(a.length)
-  q.fill(); r.fill()
+  r.fill()
   //if b is larger, then a is the remainder
   if(compare(b, a) > 1) {
     q.fill()
@@ -195,8 +195,7 @@ var divide = exports.divide = exports.div = function (a, b, q, r) {
   var mA = msb(a), mB = msb(b)
 
   var _b  = new Buffer(a.length)
-  var _b2 = new Buffer(a.length)
-  var _r  = new Buffer(a.length)
+  var _r  = _r //new Buffer(a.length)
   _b.fill()
   ;(Array.isArray(a) ? new Buffer(a) : a ).copy(r)
 
@@ -211,16 +210,18 @@ var divide = exports.divide = exports.div = function (a, b, q, r) {
   var bit = mA - mB
   while(bit >= 0) {
     if(compare(_b, r) <= 0) {
-      subtract(r, _b, _r)
-      var t = r; r = _r; _r = t
+      subtract(r, _b, r)
       //set 1 bit of quotent!
-      q[bit>>3] |= 1<<(bit%8)
+      if(q) q[bit>>3] |= 1<<(bit%8)
     }
 
     shift(_b, -1, _b)
     bit--
   }
-  return {remainder: r, quotient: q}
+  var _r = new Buffer(b.length + 8)
+  _r.fill()
+  r.copy(_r)
+  return {remainder: _r, quotient: q}
 }
 
 // to base:
@@ -240,14 +241,14 @@ exports.power = function (base, exp, mod) {
   result[0] = 1
 
   var modulus = mod ? function (v) {
-    return divide(v, mod).remainder
+    return divide(v, mod, false).remainder
   } : function (id) { return id }
 
   var msb = mostSignificantBit(exp)
   for(var i = 0; i < msb; i++) {
     if(getBit(exp, i))
       result = modulus(multiply(result, base))
-    base = modulus(square(base))
+    base = modulus(square(modulus(base)))
   }
 
   return result
