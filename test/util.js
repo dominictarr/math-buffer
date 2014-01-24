@@ -68,8 +68,6 @@ function createTestMethod(name, inputs, method, applyTest) {
       //so that it's easy to c/p to more focused test.
      
       if(DEBUG) {
-        console.log('************************')
-        console.log(expected, args)
         console.log(
           'equal(t,\n  big.'+name+'('+
           args.map(wrap).join(', ')+'), '+

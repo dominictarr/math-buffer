@@ -211,10 +211,8 @@ tape('shift - mutate', function (t) {
   function shift(a, b, n) {
     var _a = new Buffer(a), _b = new Buffer(b)
     big.shift(_a, n, _a)
-    console.log(_a, b)
     equal(t, _a, b)
     big.shift(_a, -1*n, _a)
-    console.log(_a, a)
     equal(t, _a, a)
   }
   shift(B(1), B(2), 1)
@@ -266,8 +264,6 @@ function testIntExp(t, base, exponent, mod) {
   var exp = base+'^'+exponent+(mod ? '%'+mod : '')+'==='+result
   if(result > 0xffffffff)
     throw new Error('cant calculate with int:'+exp)
-  console.log('**********************')
-  console.log(exp)
   var b = big.fromInt(base, 8)
   var e = big.fromInt(exponent, 8)
   var m = mod && big.fromInt(mod, 8)
