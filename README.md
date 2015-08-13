@@ -59,6 +59,30 @@ multiply `a` by `b`.
 
 `m` *must not* be `a, b`
 
+### or: `result = or(a, b, m?)`
+
+`a` or `b`
+
+`m` *may* be `a, b`
+
+### and: `result = and(a, b, m?)`
+
+`a` and `b`
+
+`m` *may* be `a, b`
+
+### xor: `result = xor(a, b, m?)`
+
+`a` xor `b`
+
+`m` *may* be `a, b`
+
+### not: `result = not(a, m?)`
+
+not `a`
+
+`m` *may* be `a`
+
 ### modInt: `int_result = modInt(a, int_n)`
 
 get the modulus of dividing a big number with a 32 bit int.
