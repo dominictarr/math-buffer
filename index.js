@@ -25,6 +25,56 @@ var isOne = exports.isOne = function (v) {
   return true
 }
 
+// c = a | b
+var or = exports.or = function(a, b, c){
+  var l = Math.max(a.length, b.length)
+
+  if(!c) { c = new Buffer(l); c.fill() }
+  while(l--){
+    var x = a[l] || 0
+    var y = b[l] || 0
+    c[l] = x | y
+  }
+  return c
+}
+
+// c = a & b
+var and = exports.and = function(a, b, c){
+  var l = Math.max(a.length, b.length)
+
+  if(!c) { c = new Buffer(l); c.fill() }
+  while(l--){
+    var x = a[l] || 0
+    var y = b[l] || 0
+    c[l] = x & y
+  }
+  return c
+}
+
+// c = a ^ b
+var xor = exports.xor = function(a, b, c){
+  var l = Math.max(a.length, b.length)
+
+  if(!c) { c = new Buffer(l); c.fill() }
+  while(l--){
+    var x = a[l] || 0
+    var y = b[l] || 0
+    c[l] = x ^ y
+  }
+  return c
+}
+
+// c = ~a
+var not = exports.not = function(a, c){
+  var l = a.length
+
+  if(!c) { c = new Buffer(l); c.fill() }
+  while(l--){
+    c[l] = ~a[l]
+  }
+  return c
+}
+
 //okay, need addShift(a, b, n)
 //a + (b<<n)
 
@@ -33,7 +83,7 @@ var add = exports.add = function (a, b, c) {
 
   if(a.length == b.length && (a[l-1] + b[l-1])>>1)
     l ++
- 
+
   if(!c) { c = new Buffer(l); c.fill() }
   var carry = 0
   for(var i = 0; i < l; i++) {
@@ -52,7 +102,7 @@ var addShift = exports.addShift = function (a, b, shift, c) {
 
   if(a.length == b.length && (a[l-1] + b[l-1])>>1)
     l ++
- 
+
   var sbits = shift & 7
   var sbytes = shift >> 3
 
@@ -304,7 +354,7 @@ exports.gcd = function (u, v, mutate) {
 
 var isOdd = exports.isOdd = function (p) {
   return !!(p[0] & 1)
-} 
+}
 
 var isEven = exports.isEven = function (p) {
   return !(p[0] & 1)
@@ -314,10 +364,10 @@ exports.inverse = function (n, p) {
   var a = fromInt(1, n.length), b = fromInt(0, n.length)
   var x = new Buffer(n), y = new Buffer(p)
   var tmp, i, nz=1;
-  
+
   if(isEven(p))
     throw new Error("inverse: p must be odd"+p);
-  
+
   // invariant: y is odd
   do {
     if (isOdd(x)) {
@@ -331,13 +381,13 @@ exports.inverse = function (n, p) {
       if(compare(a, b) < 0) add(a, p, a)
       subtract(a, b, a)
     }
-    
+
     // cut everything in half
     shift(x, -1, x)
     if (isOdd(a)) add(a, p, a)
     shift(a, -1, a)
   } while(!isZero(x))
-  
+
   if (!isOne(y)) throw new Error("inverseMod: p and x must be relatively prime")
   return b;
 }
@@ -357,4 +407,3 @@ var lowestSetBit = exports.lowestSetBit = function (n) {
     if(n[i]) return i + _lsb(n[i])
   return -1
 }
-
